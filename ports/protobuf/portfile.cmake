@@ -10,6 +10,7 @@ vcpkg_from_github(
         fix-utf8-range.patch
         fix-install-dirs.patch
         fix-protobuf-generate.patch
+        pdb-source-indexing.patch
 )
 
 string(COMPARE EQUAL "${TARGET_TRIPLET}" "${HOST_TRIPLET}" protobuf_BUILD_PROTOC_BINARIES)
@@ -49,6 +50,8 @@ file(REMOVE_RECURSE
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
+#   GENERATOR "Visual Studio 17 2022"
+    WINDOWS_USE_MSBUILD
     OPTIONS
         -Dprotobuf_BUILD_SHARED_LIBS=${protobuf_BUILD_SHARED_LIBS}
         -Dprotobuf_MSVC_STATIC_RUNTIME=${protobuf_MSVC_STATIC_RUNTIME}
@@ -61,6 +64,7 @@ vcpkg_cmake_configure(
         ${FEATURE_OPTIONS}
 )
 
+# build step
 vcpkg_cmake_install()
 
 if(protobuf_BUILD_PROTOC_BINARIES)
@@ -136,3 +140,4 @@ configure_file("${CMAKE_CURRENT_LIST_DIR}/vcpkg-cmake-wrapper.cmake" "${CURRENT_
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share" "${CURRENT_PACKAGES_DIR}/debug/include")
 
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
+

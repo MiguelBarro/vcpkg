@@ -1,0 +1,42 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 878ef2e3d..9bf3e77dc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,11 +2,6 @@
+ # to 3.26.
+ cmake_minimum_required(VERSION 3.10...3.26)
+ 
+-# Revert to old behavior for MSVC debug symbols.
+-if(POLICY CMP0141)
+-  cmake_policy(SET CMP0141 OLD)
+-endif()
+-
+ if(protobuf_VERBOSE)
+   message(STATUS "Protocol Buffers Configuring...")
+ endif()
+diff --git a/cmake/protobuf-configure-target.cmake b/cmake/protobuf-configure-target.cmake
+index aa519f7ca..ed753b542 100644
+--- a/cmake/protobuf-configure-target.cmake
++++ b/cmake/protobuf-configure-target.cmake
+@@ -31,6 +31,13 @@ function(protobuf_configure_target target)
+         )
+         # Allow big object
+         target_compile_options("${target}" PRIVATE /bigobj)
++        # Use pdb files
++        set_target_properties("${target}" PROPERTIES
++            MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>"
++            COMPILE_PDB_NAME_DEBUG "${target}d"
++            COMPILE_PDB_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/Debug"
++            STATIC_LIBRARY_OPTIONS "$<$<CONFIG:Debug>:/DEBUG:FULL>"
++        )
+     endif ()
+     if (protobuf_UNICODE)
+         target_compile_definitions("${target}" PRIVATE -DUNICODE -D_UNICODE)
+@@ -53,7 +60,6 @@ function(protobuf_configure_target target)
+         target_compile_definitions("${target}" PRIVATE -DHAVE_ZLIB)
+     endif ()
+ 
+-
+ endfunction ()
+ 
+ function(protobuf_configure_unity_target target)
